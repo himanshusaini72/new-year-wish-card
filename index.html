@@ -25,6 +25,8 @@
             max-width: 90%;
             width: 400px;
             margin: 20px;
+            position: relative;
+            overflow: hidden;
         }
         h1 {
             color: #FFD700;
@@ -81,6 +83,8 @@
             background-color: red;
             transform: rotate(45deg);
             animation: heartMove 2s ease-in-out;
+            z-index: 1000;
+            pointer-events: none;
         }
         .heart::before,
         .heart::after {
@@ -99,7 +103,7 @@
         }
         @keyframes heartMove {
             0% { transform: translateY(0) rotate(45deg); opacity: 1; }
-            100% { transform: translateY(-100vh) rotate(45deg); opacity: 0; }
+            100% { transform: translateY(-100px) rotate(45deg); opacity: 0; }
         }
         #giftContent {
             display: none;
@@ -233,15 +237,20 @@
         });
 
         let loveInterval;
-        document.getElementById('sendLoveButton').addEventListener('mousedown', function() {
+        document.getElementById('sendLoveButton').addEventListener('touchstart', startSendingLove);
+        document.getElementById('sendLoveButton').addEventListener('mousedown', startSendingLove);
+        document.getElementById('sendLoveButton').addEventListener('touchend', stopSendingLove);
+        document.getElementById('sendLoveButton').addEventListener('mouseup', stopSendingLove);
+        document.getElementById('sendLoveButton').addEventListener('mouseleave', stopSendingLove);
+
+        function startSendingLove(e) {
+            e.preventDefault(); // Prevent default touch behavior
             loveInterval = setInterval(createHeart, 100);
-        });
-        document.getElementById('sendLoveButton').addEventListener('mouseup', function() {
+        }
+
+        function stopSendingLove() {
             clearInterval(loveInterval);
-        });
-        document.getElementById('sendLoveButton').addEventListener('mouseleave', function() {
-            clearInterval(loveInterval);
-        });
+        }
 
         function createFireworks() {
             const fireworks = document.getElementById('fireworks');
@@ -264,9 +273,11 @@
         function createHeart() {
             const heart = document.createElement('div');
             heart.classList.add('heart');
-            heart.style.left = Math.random() * window.innerWidth + 'px';
-            heart.style.top = window.innerHeight + 'px';
-            document.body.appendChild(heart);
+            const card = document.querySelector('.card');
+            const cardRect = card.getBoundingClientRect();
+            heart.style.left = Math.random() * (cardRect.width - 20) + 'px';
+            heart.style.top = cardRect.height + 'px';
+            card.appendChild(heart);
             setTimeout(() => heart.remove(), 2000);
         }
     </script>
